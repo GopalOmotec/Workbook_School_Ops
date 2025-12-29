@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Connection Test</title>
+</head>
+<body>
+    <h1>Backend Connection Test</h1>
+    <button onclick="testConnection()">Test Backend Connection</button>
+    <div id="result"></div>
+
+    <script>
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                // Test health endpoint
+                const healthResponse = await fetch('http://127.0.0.1:5001/health');
+                const healthData = await healthResponse.json();
+                console.log('Health check:', healthData);
+                
+                // Test login endpoint
+                const loginResponse = await fetch('http://127.0.0.1:5001/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'admin1@onmyowntechnology.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                const loginData = await loginResponse.json();
+                console.log('Login response:', loginData);
+                
+                resultDiv.innerHTML = `
+                    <h3>Health Check: ${healthData.status}</h3>
+                    <h3>Login Test: ${loginData.success ? 'SUCCESS' : 'FAILED'}</h3>
+                    <pre>${JSON.stringify(loginData, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<h3 style="color: red;">Error: ${error.message}</h3>`;
+            }
+        }
+    </script>
+</body>
+</html>
+

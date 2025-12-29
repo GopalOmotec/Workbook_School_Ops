@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>International Robotics and AI Foundation (IRAIF)</title>
+  <meta name="description" content="IRAIF is a charitable, non-profit foundation promoting AI, Robotics and Coding education aligned with NEP 2020 and New Bharat Nirman." />
+  <!-- Import Three.js for 3D/Interactive Background -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== FRESH & PROFESSIONAL COLOR THEME ===== */
+    :root {
+      /* Primary Colors */
+      --color-primary: #0056d6;      /* Bright Blue */
+      --color-primary-light: #3a7bff;
+      --color-primary-dark: #003d99;
+      
+      /* Secondary Colors */
+      --color-secondary: #00c896;    /* Teal */
+      --color-secondary-light: #2dd4bf;
+      --color-secondary-dark: #00997a;
+      
+      /* Accent Colors */
+      --color-accent: #ff6b35;       /* Orange */
+      --color-accent-light: #ff8c42;
+      
+      /* Neutral Colors */
+      --color-white: #ffffff;
+      --color-light: #f8fafc;
+      --color-light-gray: #f1f5f9;
+      --color-gray: #94a3b8;
+      --color-dark: #1e293b;
+      --color-text: #334155;
+      
+      /* Gradients */
+      --gradient-primary: linear-gradient(135deg, #0056d6 0%, #3a7bff 100%);
+      --gradient-secondary: linear-gradient(135deg, #00c896 0%, #2dd4bf 100%);
+      --gradient-accent: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+      --gradient-light: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      
+      /* Shadows */
+      --shadow-card: 0 10px 25px rgba(0, 86, 214, 0.08);
+      --shadow-card-hover: 0 20px 40px rgba(0, 86, 214, 0.15);
+      --shadow-header: 0 4px 20px rgba(0, 0, 0, 0.05);
+      --shadow-button: 0 8px 20px rgba(0, 200, 150, 0.25);
+      
+      /* Borders */
+      --border-radius: 12px;
+      --border-radius-lg: 20px;
+      --border-radius-xl: 30px;
+      
+      /* Transitions */
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: var(--color-text);
+      line-height: 1.6;
+      background-color: var(--color-white);
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    /* ===== INTERACTIVE BACKGROUND ===== */
+    #networkCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.3;
+    }
+
+    /* ===== HEADER & NAVIGATION ===== */
+    header {
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      padding: 20px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: var(--shadow-header);
+      border-bottom: 1px solid rgba(0, 86, 214, 0.1);
+      transition: var(--transition);
+    }
+
+    header.scrolled {
+      padding: 15px 40px;
+    }
+
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 50px;
+      height: 50px;
+      background: var(--gradient-primary);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      box-shadow: 0 8px 20px rgba(0, 86, 214, 0.2);
+    }
+
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    nav {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--color-dark);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      padding: 10px 20px;
+      border-radius: 30px;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    nav a:hover {
+      background: var(--color-light);
+      color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+
+    nav a.active {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: 0 5px 15px rgba(0, 86, 214, 0.2);
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: var(--gradient-primary);
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .mobile-menu-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 86, 214, 0.3);
+    }
+
+    /* ===== HERO SECTION ===== */
+    .hero {
+      padding: 140px 40px 100px;
+      background: linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9)), 
+                  url('https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover no-repeat;
+      position: relative;
+      min-height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .hero-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h1 {
+      font-size: 3.8rem;
+      margin-bottom: 25px;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero .tagline {
+      font-size: 1.5rem;
+      color: var(--color-primary);
+      font-weight: 600;
+      margin-bottom: 30px;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 800px;
+      margin: 0 auto 40px;
+      color: var(--color-text);
+      animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.8s ease-out 0.6s both;
+    }
+
+    .cta-buttons a {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 40px;
+      text-decoration: none;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      font-size: 16px;
+      transition: var(--transition);
+      border: 2px solid transparent;
+    }
+
+    .cta-buttons a.primary {
+      background: var(--gradient-secondary);
+      color: white;
+      box-shadow: var(--shadow-button);
+    }
+
+    .cta-buttons a.secondary {
+      background: white;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: 0 8px 20px rgba(0, 86, 214, 0.1);
+    }
+
+    .cta-buttons a:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 200, 150, 0.3);
+    }
+
+    .cta-buttons a.secondary:hover {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    /* ===== MAIN SECTIONS ===== */
+    section {
+      padding: 100px 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 2.8rem;
+      margin-bottom: 50px;
+      text-align: center;
+      color: var(--color-primary);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .section-title i {
+      color: var(--color-secondary);
+      font-size: 2.5rem;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: var(--gradient-accent);
+      border-radius: 2px;
+    }
+
+    /* ===== CARDS & GRID ===== */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .card {
+      background: white;
+      border-radius: var(--border-radius-lg);
+      padding: 40px 30px;
+      box-shadow: var(--shadow-card);
+      transition: var(--transition);
+      border: 1px solid rgba(0, 86, 214, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: var(--gradient-primary);
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    .card-icon {
+      width: 70px;
+      height: 70px;
+      background: var(--gradient-light);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+      font-size: 28px;
+      color: var(--color-primary);
+    }
+
+    .card h4 {
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: var(--color-dark);
+    }
+
+    .card p {
+      color: var(--color-text);
+      line-height: 1.7;
+    }
+
+    /* ===== HIGHLIGHT SECTIONS ===== */
+    .highlight {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%);
+      border-radius: var(--border-radius-xl);
+      padding: 80px;
+      margin: 60px auto;
+      border: 1px solid rgba(0, 86, 214, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .highlight::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+      background: var(--gradient-secondary);
+      opacity: 0.05;
+      border-radius: 50%;
+      transform: translate(100px, -100px);
+    }
+
+    /* ===== CONTACT SECTION ===== */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 40px;
+    }
+
+    .contact-item {
+      background: white;
+      padding: 30px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow-card);
+      transition: var(--transition);
+      border: 1px solid rgba(0, 86, 214, 0.08);
+    }
+
+    .contact-item:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    .contact-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--gradient-light);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      color: var(--color-primary);
+      font-size: 24px;
+    }
+
+    .contact-item h4 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: var(--color-dark);
+    }
+
+    .contact-item p {
+      color: var(--color-text);
+      font-size: 1rem;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: linear-gradient(135deg, var(--color-dark) 0%, #0f172a 100%);
+      color: white;
+      padding: 80px 40px 40px;
+      position: relative;
+    }
+
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 50px;
+      margin-bottom: 40px;
+    }
+
+    .footer-column h3 {
+      font-size: 1.5rem;
+      margin-bottom: 25px;
+      color: white;
+    }
+
+    .footer-column p {
+      color: #cbd5e1;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .social-links a {
+      width: 45px;
+      height: 45px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      transition: var(--transition);
+    }
+
+    .social-links a:hover {
+      background: var(--color-primary);
+      transform: translateY(-3px);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .float {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    /* ===== RESPONSIVE DESIGN ===== */
+    @media (max-width: 1200px) {
+      .hero h1 { font-size: 3.2rem; }
+      .section-title { font-size: 2.4rem; }
+    }
+
+    @media (max-width: 768px) {
+      header { padding: 15px 25px; }
+      .header-container { flex-direction: column; gap: 20px; }
+      .logo { justify-content: center; width: 100%; }
+      nav { 
+        width: 100%; 
+        display: none; 
+        flex-direction: column; 
+        gap: 10px; 
+      }
+      nav.active { display: flex; }
+      nav a { justify-content: center; }
+      .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+      .hero { padding: 120px 25px 80px; }
+      .hero h1 { font-size: 2.5rem; }
+      .hero p { font-size: 1.1rem; }
+      .cta-buttons { flex-direction: column; gap: 15px; }
+      .cta-buttons a { width: 100%; justify-content: center; }
+      section { padding: 80px 25px; }
+      .highlight { padding: 40px 25px; }
+      .grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      header, section, .hero, footer { padding-left: 20px; padding-right: 20px; }
+      .hero h1 { font-size: 2rem; }
+      .section-title { font-size: 2rem; }
+      .card { padding: 30px 20px; }
+      .footer-content { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Interactive Neural Network Background Canvas -->
+  <canvas id="networkCanvas"></canvas>
+
+  <!-- Header with Navigation -->
+  <header id="mainHeader">
+    <div class="header-container">
+      <a href="#" class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="logo-text">IRAIF</div>
+      </a>
+      <button class="mobile-menu-btn" id="menuBtn" aria-label="Toggle navigation menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <nav id="mainNav">
+        <a href="#about" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+        <a href="#vision" class="nav-link"><i class="fas fa-eye"></i> Vision</a>
+        <a href="#programs" class="nav-link"><i class="fas fa-project-diagram"></i> Programs</a>
+        <a href="#ecosystem" class="nav-link"><i class="fas fa-network-wired"></i> Ecosystem</a>
+        <a href="#contact" class="nav-link"><i class="fas fa-handshake"></i> Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Shaping the Future of AI & Robotics Education</h1>
+      <div class="tagline" id="typewriter">Empowering Educators • Inspiring Innovators • Building New Bharat</div>
+      <p>International Robotics AI Foundation (IRAIF) is a charitable, non-profit organization dedicated to advancing AI, Robotics, and Coding education through strategic partnerships, teacher training, and ecosystem development aligned with NEP 2020.</p>
+      <div class="cta-buttons">
+        <a href="#contact" class="primary"><i class="fas fa-heart"></i> Support Our Mission</a>
+        <a href="#programs" class="secondary"><i class="fas fa-users"></i> Join Our Programs</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about">
+    <h3 class="section-title"><i class="fas fa-bullseye"></i> About IRAIF</h3>
+    <p style="text-align: center; max-width: 900px; margin: 0 auto 30px;">IRAIF operates at the intersection of education, innovation, and policy to create a future-ready ecosystem. We empower educators, inspire students, collaborate with governments, and unite stakeholders to drive national impact in AI and robotics education.</p>
+  </section>
+
+  <!-- Vision & Mission Section -->
+  <section id="vision" class="highlight">
+    <h3 class="section-title"><i class="fas fa-eye"></i> Vision & Mission</h3>
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon float">
+          <i class="fas fa-mountain"></i>
+        </div>
+        <h4>Our Vision</h4>
+        <p>To establish India as a global leader in AI, Robotics, and Coding education by 2030, creating an inclusive ecosystem that drives innovation, research, and economic growth.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon float">
+          <i class="fas fa-rocket"></i>
+        </div>
+        <h4>Our Mission</h4>
+        <p>To transform education through technology by training educators, fostering innovation, building strategic partnerships, and creating opportunities for students across India.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Programs Section -->
+  <section id="programs">
+    <h3 class="section-title"><i class="fas fa-tasks"></i> Programs & Initiatives</h3>
+    <div class="grid">
+      <div class="card">
+        <div class="card-icon">
+          <i class="fas fa-chalkboard-teacher"></i>
+        </div>
+        <h4>Teacher Training</h4>
+        <p>Comprehensive NEP-aligned certification programs in AI, Robotics, and Coding, equipping educators with cutting-edge pedagogical skills and technical expertise.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <i class="fas fa-handshake"></i>
+        </div>
+        <h4>Government Collaboration</h4>
+        <p>Strategic partnerships with education ministries and departments to implement national AI education initiatives and policy frameworks across states.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <i class="fas fa-lightbulb"></i>
+        </div>
+        <h4>Innovation Events</h4>
+        <p>National hackathons, bootcamps, and innovation challenges that inspire students and foster entrepreneurship in emerging technologies.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ecosystem Section -->
+  <section id="ecosystem" class="highlight">
+    <h3 class="section-title"><i class="fas fa-globe-asia"></i> National Ecosystem</h3>
+    <p style="text-align: center; max-width: 900px; margin: 0 auto 30px;">IRAIF serves as a unifying platform connecting EdTech companies, academic institutions, research labs, and industry partners to collaborate on creating scalable, quality education solutions in AI and robotics.</p>
+    <div class="grid">
+      <div class="card">
+        <h4>Industry Partnerships</h4>
+        <p>Collaborating with leading tech companies to provide real-world learning experiences and career pathways for students.</p>
+      </div>
+      <div class="card">
+        <h4>Research & Development</h4>
+        <p>Supporting cutting-edge research in AI education methodologies and developing open educational resources.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEP Alignment Section -->
+  <section>
+    <h3 class="section-title"><i class="fas fa-book-open"></i> NEP 2020 Alignment</h3>
+    <p style="text-align: center; max-width: 900px; margin: 0 auto 30px;">IRAIF's initiatives directly support the National Education Policy 2020 through experiential learning, multidisciplinary approaches, early technology exposure, and strong industry-academia linkages, contributing to Atmanirbhar Bharat and New Bharat Nirman.</p>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="highlight">
+    <h3 class="section-title"><i class="fas fa-envelope"></i> Join Our Mission</h3>
+    <p style="text-align: center; margin-bottom: 40px;">Partner with us to build a future-ready India powered by AI, Robotics, and Coding education.</p>
+    <div class="contact-grid">
+      <div class="contact-item">
+        <div class="contact-icon">
+          <i class="fas fa-fingerprint"></i>
+        </div>
+        <h4>Registration</h4>
+        <p>CIN: U85499DL2025NPL457027</p>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">
+          <i class="fas fa-phone"></i>
+        </div>
+        <h4>Contact</h4>
+        <p>+91 9820420629</p>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <h4>Email</h4>
+        <p>iroboaifoundation@gmail.com</p>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <h4>Office</h4>
+        <p>6-A, Industrial Area, Tilak Nagar, New Delhi – 110018</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>IRAIF</h3>
+        <p>International Robotics and AI Foundation is a charitable, non-profit organization dedicated to advancing technology education in India.</p>
+        <div class="social-links">
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="footer-column">
+        <h3>Quick Links</h3>
+        <p><a href="#about" style="color: #cbd5e1; text-decoration: none;">About Us</a></p>
+        <p><a href="#programs" style="color: #cbd5e1; text-decoration: none;">Programs</a></p>
+        <p><a href="#contact" style="color: #cbd5e1; text-decoration: none;">Contact</a></p>
+        <p><a href="#vision" style="color: #cbd5e1; text-decoration: none;">Vision & Mission</a></p>
+      </div>
+      <div class="footer-column">
+        <h3>Legal</h3>
+        <p>Registered as a non-profit under Section 8 of the Companies Act, 2013.</p>
+        <p>All donations are eligible for tax exemption under Section 80G.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2024 International Robotics and AI Foundation (IRAIF). All rights reserved.</p>
+      <p>Building Capability • Inspiring Innovation • Transforming Education</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile Menu Toggle
+      const menuBtn = document.getElementById('menuBtn');
+      const mainNav = document.getElementById('mainNav');
+      menuBtn.addEventListener('click', () => {
+        mainNav.classList.toggle('active');
+        menuBtn.innerHTML = mainNav.classList.contains('active')
+          ? '<i class="fas fa-times"></i>'
+          : '<i class="fas fa-bars"></i>';
+      });
+
+      // Sticky Header
+      const header = document.getElementById('mainHeader');
+      window.addEventListener('scroll', () => {
+        header.classList.toggle('scrolled', window.scrollY > 50);
+      });
+
+      // Active Navigation
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      function highlightNavLink() {
+        let scrollY = window.pageYOffset;
+        
+        sections.forEach(section => {
+          const sectionHeight = section.offsetHeight;
+          const sectionTop = section.offsetTop - 100;
+          const sectionId = section.getAttribute('id');
+          
+          if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+            navLinks.forEach(link => link.classList.remove('active'));
+            document.querySelector(`.nav-link[href="#${sectionId}"]`)?.classList.add('active');
+          }
+        });
+      }
+      window.addEventListener('scroll', highlightNavLink);
+
+      // Typing Effect
+      const typewriterElement = document.getElementById('typewriter');
+      const texts = [
+        "Empowering Educators • Inspiring Innovators • Building New Bharat",
+        "Transforming Education through AI & Robotics",
+        "Creating Future-Ready Citizens"
+      ];
+      let textIndex = 0;
+      let charIndex = 0;
+      let isDeleting = false;
+      
+      function typeWriter() {
+        const currentText = texts[textIndex];
+        
+        if (isDeleting) {
+          typewriterElement.textContent = currentText.substring(0, charIndex - 1);
+          charIndex--;
+        } else {
+          typewriterElement.textContent = currentText.substring(0, charIndex + 1);
+          charIndex++;
+        }
+        
+        if (!isDeleting && charIndex === currentText.length) {
+          isDeleting = true;
+          setTimeout(typeWriter, 2000);
+        } else if (isDeleting && charIndex === 0) {
+          isDeleting = false;
+          textIndex = (textIndex + 1) % texts.length;
+          setTimeout(typeWriter, 500);
+        } else {
+          setTimeout(typeWriter, isDeleting ? 50 : 100);
+        }
+      }
+      
+      setTimeout(typeWriter, 1000);
+
+      // Interactive Background
+      const canvas = document.getElementById('networkCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      class Particle {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 2 + 1;
+          this.speedX = Math.random() * 0.5 - 0.25;
+          this.speedY = Math.random() * 0.5 - 0.25;
+          this.color = `rgba(${Math.floor(Math.random() * 100 + 0)}, ${Math.floor(Math.random() * 150 + 86)}, ${Math.floor(Math.random() * 255 + 0)}, 0.5)`;
+        }
+        
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          
+          if (this.x > canvas.width) this.x = 0;
+          else if (this.x < 0) this.x = canvas.width;
+          if (this.y > canvas.height) this.y = 0;
+          else if (this.y < 0) this.y = canvas.height;
+        }
+        
+        draw() {
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      
+      const particles = Array.from({ length: 100 }, () => new Particle());
+      
+      function connectParticles() {
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 150) {
+              ctx.strokeStyle = `rgba(0, 86, 214, ${0.1 * (1 - distance / 150)})`;
+              ctx.lineWidth = 0.5;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+      }
+      
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach(particle => {
+          particle.update();
+          particle.draw();
+        });
+        
+        connectParticles();
+        requestAnimationFrame(animate);
+      }
+      
+      animate();
+
+      // Card Hover Effects
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          card.style.transform = 'translateY(-10px)';
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = 'translateY(0)';
+        });
+      });
+    });
+  </script>
+</body>
+</html>

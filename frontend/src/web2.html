@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>International Robotics and AI Foundation (IRAIF)</title>
+  <meta name="description" content="IRAIF is a charitable, non-profit foundation promoting AI, Robotics and Coding education aligned with NEP 2020 and New Bharat Nirman." />
+  <!-- Import Three.js for 3D/Interactive Background -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== CSS Variables & Base Reset ===== */
+    :root {
+      --color-primary: #0f3c5f; /* Deep Blue */
+      --color-primary-light: #1a5a8a;
+      --color-secondary: #e63946; /* Vibrant Red for accents */
+      --color-accent: #2a9d8f; /* Teal */
+      --color-accent-light: #76c7bc;
+      --color-light: #f0f7ff;
+      --color-dark: #1f2937;
+      --color-white: #ffffff;
+      --color-gray: #e5e7eb;
+      --color-gray-light: #f8fafc;
+      --gradient-primary: linear-gradient(135deg, #0f3c5f 0%, #1a5a8a 100%);
+      --gradient-accent: linear-gradient(135deg, var(--color-accent) 0%, #76c7bc 100%);
+      --gradient-hero: linear-gradient(135deg, rgba(15, 60, 95, 0.92) 0%, rgba(42, 157, 143, 0.85) 100%);
+      --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --shadow-card-hover: 0 20px 50px rgba(15, 60, 95, 0.15);
+      --shadow-button: 0 8px 20px rgba(230, 57, 70, 0.3);
+      --border-radius: 16px;
+      --border-radius-lg: 24px;
+      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      --transition-slow: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      --font-heading: 'Poppins', sans-serif;
+      --font-body: 'Roboto', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--color-dark);
+      line-height: 1.7;
+      background-color: #fafafa;
+      overflow-x: hidden;
+      position: relative;
+    }
+    /* To ensure content is above the canvas */
+    body > *:not(#networkCanvas) {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== Interactive Background Canvas ===== */
+    #networkCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* ===== Header & Navigation ===== */
+    header {
+      background: rgba(15, 60, 95, 0.95); /* Semi-transparent */
+      color: var(--color-white);
+      padding: 20px 40px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.12);
+      transition: var(--transition-slow);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    header.scrolled {
+      padding: 15px 40px;
+      background: rgba(15, 60, 95, 0.98);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      cursor: pointer;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--gradient-accent);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      transition: var(--transition);
+    }
+
+    header:hover .logo-icon {
+      transform: rotate(15deg) scale(1.05);
+    }
+
+    .logo-text h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      font-family: var(--font-heading);
+      line-height: 1.2;
+    }
+    
+    .logo-text p {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: var(--color-white);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      padding: 12px 22px;
+      border-radius: 50px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    nav a:hover, nav a:focus {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    nav a.active {
+      background: var(--color-accent);
+      color: white;
+      box-shadow: 0 5px 15px rgba(42, 157, 143, 0.3);
+    }
+
+    /* Animated underline on hover */
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 3px;
+      background: var(--color-accent);
+      transition: width 0.3s ease, left 0.3s ease;
+      border-radius: 3px;
+    }
+    
+    nav a:hover::after, nav a.active::after {
+      width: 70%;
+      left: 15%;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: var(--transition);
+    }
+    
+    .mobile-menu-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: rotate(90deg);
+    }
+
+    /* ===== Hero Section ===== */
+    .hero {
+      padding: 160px 40px 120px;
+      background: var(--gradient-hero), url('https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+      color: var(--color-white);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 30% 30%, rgba(42, 157, 143, 0.2) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 70%, rgba(15, 60, 95, 0.2) 0%, transparent 50%);
+      z-index: 1;
+    }
+
+    .hero-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 3;
+    }
+
+    .hero h2 {
+      font-size: 3.8rem;
+      margin-bottom: 25px;
+      line-height: 1.2;
+      font-weight: 800;
+      font-family: var(--font-heading);
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      max-width: 800px;
+      margin: 0 auto 40px;
+      opacity: 0.95;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .hero p strong {
+      color: #ffd166; /* Highlight color */
+      font-weight: 700;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .hero p strong::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--color-secondary);
+      border-radius: 2px;
+      transform: scaleX(0);
+      transition: transform 0.5s ease;
+      transform-origin: right;
+    }
+    
+    .hero:hover p strong::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    .typewriter-container {
+      margin-bottom: 40px;
+      min-height: 50px;
+    }
+
+    .typewriter-text {
+      font-size: 1.5rem;
+      color: #a8dadc;
+      padding: 15px 25px;
+      margin-bottom: 30px;
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(5px);
+      border-left: 4px solid var(--color-accent);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 25px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    .cta-buttons a {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 40px;
+      background: var(--color-secondary);
+      color: var(--color-white);
+      text-decoration: none;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      font-size: 18px;
+      transition: var(--transition);
+      box-shadow: var(--shadow-button);
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+      font-family: var(--font-heading);
+    }
+    
+    .cta-buttons a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.7s ease;
+    }
+    
+    .cta-buttons a:hover::before {
+      left: 100%;
+    }
+
+    .cta-buttons a:hover {
+      transform: translateY(-8px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(230, 57, 70, 0.4);
+      background: var(--color-white);
+      color: var(--color-secondary);
+      border-color: var(--color-secondary);
+    }
+
+    .cta-buttons a i {
+      font-size: 1.2em;
+      transition: transform 0.3s ease;
+    }
+    
+    .cta-buttons a:hover i {
+      transform: scale(1.2);
+    }
+
+    .cta-buttons a:nth-child(2) {
+      background: transparent;
+      border: 2px solid var(--color-white);
+      box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+    }
+    
+    .cta-buttons a:nth-child(2):hover {
+      background: var(--color-white);
+      color: var(--color-primary);
+      border-color: var(--color-white);
+      box-shadow: 0 15px 35px rgba(255, 255, 255, 0.3);
+    }
+
+    /* ===== Main Content Sections ===== */
+    section {
+      padding: 120px 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 2.8rem;
+      margin-bottom: 60px;
+      color: var(--color-primary);
+      position: relative;
+      padding-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-family: var(--font-heading);
+      font-weight: 700;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 6px;
+      background: linear-gradient(to right, var(--color-accent), var(--color-secondary));
+      border-radius: 3px;
+    }
+
+    .section-title i {
+      color: var(--color-accent);
+      background: var(--color-gray-light);
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 28px;
+      box-shadow: 0 8px 20px rgba(42, 157, 143, 0.2);
+    }
+
+    /* ===== Cards & Grid ===== */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 40px;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: var(--color-white);
+      border-radius: var(--border-radius);
+      padding: 40px 35px;
+      box-shadow: var(--shadow-card);
+      border-top: 5px solid var(--color-accent);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(15, 60, 95, 0.03) 0%, rgba(42, 157, 143, 0.03) 100%);
+      z-index: 0;
+    }
+
+    .card:hover {
+      transform: translateY(-15px);
+      box-shadow: var(--shadow-card-hover);
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.7s ease;
+      z-index: 1;
+    }
+    
+    .card:hover::after {
+      left: 100%;
+    }
+
+    .card-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    .card h4 {
+      font-size: 1.7rem;
+      margin-bottom: 20px;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-family: var(--font-heading);
+    }
+
+    .card h4 i {
+      color: var(--color-accent);
+      background: var(--color-gray-light);
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-size: 22px;
+      transition: var(--transition);
+    }
+    
+    .card:hover h4 i {
+      transform: rotate(15deg) scale(1.1);
+      background: var(--gradient-accent);
+      color: white;
+    }
+
+    .card p, .card ul {
+      color: #555;
+      font-size: 1.1rem;
+      margin-bottom: 0;
+      flex-grow: 1;
+    }
+
+    .card ul {
+      padding-left: 20px;
+    }
+
+    .card li {
+      margin-bottom: 12px;
+      position: relative;
+      padding-left: 10px;
+    }
+    
+    .card li::before {
+      content: '';
+      position: absolute;
+      left: -15px;
+      top: 10px;
+      width: 8px;
+      height: 8px;
+      background: var(--color-accent);
+      border-radius: 50%;
+    }
+
+    /* ===== Highlight Sections ===== */
+    .highlight {
+      background-color: var(--color-light);
+      position: relative;
+      border-radius: var(--border-radius-lg);
+      margin: 60px auto;
+      border-left: 8px solid var(--color-accent);
+      overflow: hidden;
+    }
+    
+    .highlight::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(42, 157, 143, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    /* ===== Contact Section Specifics ===== */
+    #contact .highlight {
+      padding: 70px 60px;
+    }
+
+    .contact-info p {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 1.2rem;
+      padding: 15px 25px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.7);
+      transition: var(--transition);
+    }
+    
+    .contact-info p:hover {
+      background: rgba(255, 255, 255, 0.9);
+      transform: translateX(10px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .contact-info i {
+      color: var(--color-accent);
+      width: 30px;
+      text-align: center;
+      font-size: 22px;
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      background: var(--gradient-primary);
+      color: var(--color-white);
+      padding: 70px 40px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%230f3c5f' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+      opacity: 0.3;
+    }
+
+    .footer-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      position: relative;
+      z-index: 2;
+    }
+
+    footer p {
+      margin: 5px 0;
+      opacity: 0.9;
+    }
+
+    footer p:first-child {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: var(--font-heading);
+    }
+    
+    .footer-motto {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--color-accent-light);
+      margin-top: 10px;
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .social-icons a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 55px;
+      height: 55px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-radius: 50%;
+      font-size: 1.4rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .social-icons a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.7s ease;
+    }
+    
+    .social-icons a:hover::before {
+      left: 100%;
+    }
+
+    .social-icons a:hover {
+      background: var(--color-accent);
+      transform: translateY(-8px) scale(1.1);
+      box-shadow: 0 10px 25px rgba(42, 157, 143, 0.4);
+    }
+
+    /* ===== Animations ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink-caret {
+      from, to { border-color: transparent; }
+      50% { border-color: #a8dadc; }
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.7); }
+      70% { box-shadow: 0 0 0 20px rgba(42, 157, 143, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(42, 157, 143, 0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+      border-radius: 50%;
+    }
+    
+    .float {
+      animation: float 5s ease-in-out infinite;
+    }
+
+    /* ===== Progress Indicator ===== */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 4px;
+      background: linear-gradient(to right, var(--color-accent), var(--color-secondary));
+      z-index: 1001;
+      transition: width 0.2s ease;
+    }
+
+    /* ===== Responsive Design ===== */
+    @media (max-width: 1100px) {
+      .hero h2 { font-size: 3.2rem; }
+      .section-title { font-size: 2.4rem; }
+      section { padding: 100px 30px; }
+    }
+
+    @media (max-width: 768px) {
+      header { padding: 18px 25px; }
+      .header-container { flex-direction: row; align-items: center; gap: 0; }
+      .logo-text h1 { font-size: 20px; }
+      .logo-text p { display: none; }
+      nav { 
+        width: 100%; 
+        justify-content: center; 
+        display: none; 
+        flex-direction: column; 
+        gap: 5px;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: rgba(15, 60, 95, 0.98);
+        padding: 20px;
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      }
+      nav.active { display: flex; }
+      nav a { text-align: center; border-radius: 10px; padding: 15px; }
+      .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+      .hero { padding: 140px 25px 100px; min-height: 85vh; }
+      .hero h2 { font-size: 2.5rem; }
+      .typewriter-text { font-size: 1.2rem; padding: 12px 20px; }
+      .cta-buttons { flex-direction: column; align-items: center; gap: 20px; }
+      .cta-buttons a { width: 100%; max-width: 320px; justify-content: center; padding: 18px 30px; }
+      .section-title { font-size: 2rem; }
+      .section-title i { width: 60px; height: 60px; font-size: 24px; }
+      .grid { grid-template-columns: 1fr; gap: 30px; }
+      #contact .highlight { padding: 50px 30px; }
+      .contact-info p { flex-direction: column; gap: 10px; text-align: center; padding: 20px; }
+    }
+
+    @media (max-width: 480px) {
+      header, section, .hero, footer { padding-left: 20px; padding-right: 20px; }
+      .hero { padding: 130px 20px 80px; }
+      .hero h2 { font-size: 2rem; }
+      .hero p { font-size: 1.1rem; }
+      .section-title { font-size: 1.8rem; }
+      .section-title i { width: 50px; height: 50px; font-size: 20px; }
+      .card { padding: 30px 25px; }
+      #contact .highlight { padding: 40px 25px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Scroll Progress Indicator -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Interactive Neural Network Background Canvas -->
+  <canvas id="networkCanvas"></canvas>
+
+  <!-- Header with Navigation -->
+  <header id="mainHeader">
+    <div class="header-container">
+      <div class="logo-container" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <div class="logo-icon">
+          <i class="fas fa-robot"></i>
+        </div>
+        <div class="logo-text">
+          <h1>International Robotics and AI Foundation</h1>
+          <p>Building Future-Ready India</p>
+        </div>
+      </div>
+      <button class="mobile-menu-btn" id="menuBtn" aria-label="Toggle navigation menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <nav id="mainNav">
+        <a href="#about" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+        <a href="#programs" class="nav-link"><i class="fas fa-project-diagram"></i> Programs</a>
+        <a href="#ecosystem" class="nav-link"><i class="fas fa-network-wired"></i> Ecosystem</a>
+        <a href="#nep" class="nav-link"><i class="fas fa-graduation-cap"></i> NEP Alignment</a>
+        <a href="#contact" class="nav-link"><i class="fas fa-handshake"></i> Donate / Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h2>Shaping the Future of AI, Robotics & Coding Education</h2>
+      <div class="typewriter-container">
+        <div class="typewriter-text" id="typewriter">Empowering Teachers | Enabling Innovation | Building New Bharat</div>
+      </div>
+      <p>International Robotics AI Foundation (IRAIF) is a <strong>charitable, non-profit organization</strong> advancing AI, Robotics, and Coding education through teacher training, policy collaboration, innovation events, and ecosystem partnerships aligned with <strong>NEP 2020</strong>.</p>
+      <div class="cta-buttons">
+        <a href="#contact"><i class="fas fa-heart"></i> Donate & Support</a>
+        <a href="#contact"><i class="fas fa-users"></i> Partner with Us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about">
+    <h3 class="section-title"><i class="fas fa-bullseye"></i> About IRAIF</h3>
+    <p>IRAIF works at the intersection of education, innovation, and policy to build a future-ready ecosystem. We empower educators, inspire students, collaborate with governments, and unite stakeholders on a common platform for national impact.</p>
+  </section>
+
+  <!-- Vision & Mission Section -->
+  <section class="highlight">
+    <h3 class="section-title"><i class="fas fa-eye"></i> Vision & Mission</h3>
+    <div class="grid">
+      <div class="card">
+        <div class="card-content">
+          <h4><i class="fas fa-mountain"></i> Vision</h4>
+          <p>To make India a global leader in AI, Robotics, and Coding education, research, and innovation, creating a future-ready workforce for the 21st century.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-content">
+          <h4><i class="fas fa-rocket"></i> Mission</h4>
+          <ul>
+            <li>Train and certify teachers in emerging technologies</li>
+            <li>Support government-led future-ready education initiatives</li>
+            <li>Inspire students through innovation and hackathons</li>
+            <li>Build a unified national ecosystem platform</li>
+            <li>Foster industry-academia collaborations</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Programs & Initiatives Section -->
+  <section id="programs">
+    <h3 class="section-title"><i class="fas fa-tasks"></i> Programs & Initiatives</h3>
+    <div class="grid">
+      <div class="card">
+        <div class="card-content">
+          <h4><i class="fas fa-chalkboard-teacher"></i> Teacher Training</h4>
+          <p>NEP-aligned programs in AI, Robotics, Coding, and experiential pedagogy, helping educators meet the growing demand for AI-skilled professionals.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-content">
+          <h4><i class="fas fa-handshake"></i> Government Collaboration</h4>
+          <p>Policy advisory, pilot programs, and public–private–academic partnerships to support national strategies like the 'National AI for All' initiative.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-content">
+          <h4><i class="fas fa-lightbulb"></i> Innovation Events</h4>
+          <p>Innovision, iBuild for Bharat, student hackathons and bootcamps that align with the government's push for AI-driven innovation and entrepreneurship.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ecosystem Platform Section -->
+  <section id="ecosystem" class="highlight">
+    <h3 class="section-title"><i class="fas fa-globe-asia"></i> Ecosystem Platform</h3>
+    <p>IRAIF brings together EdTech providers, technology companies, institutions, and research labs to collaborate, co-create, and scale quality AI, Robotics, and Coding education, contributing to a robust national AI ecosystem.</p>
+    <div class="grid" style="margin-top: 40px;">
+      <div class="card">
+        <div class="card-content">
+          <h4><i class="fas fa-university"></i> Academic Partners</h4>
+          <p>Collaborating with schools, colleges, and universities to implement future-ready curriculum.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-content">
+          <h4><i class="fas fa-industry"></i> Industry Partners</h4>
+          <p>Engaging technology companies to provide real-world insights and resources.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-content">
+          <h4><i class="fas fa-flask"></i> Research Labs</h4>
+          <p>Partnering with research institutions to stay at the forefront of technological innovation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEP 2020 Section -->
+  <section id="nep">
+    <h3 class="section-title"><i class="fas fa-book-open"></i> NEP 2020 & New Bharat Nirman</h3>
+    <p>IRAIF supports experiential and multidisciplinary learning, teacher capacity building, early exposure to AI and coding, and strong academia–industry–research linkages—contributing to Atmanirbhar Bharat and New Bharat Nirman. This aligns with India's goal to implement AI curriculum from Grade 3 by 2026 and establish Centres of Excellence in AI for Education.</p>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="highlight">
+    <h3 class="section-title"><i class="fas fa-envelope"></i> Join the Mission</h3>
+    <div class="contact-info">
+      <p><i class="fas fa-fingerprint"></i> <strong>CIN:</strong> U85499DL2025NPL457027</p>
+      <p><i class="fas fa-phone"></i> <strong>Mobile:</strong> +91 98204 20629</p>
+      <p><i class="fas fa-envelope"></i> <strong>Email:</strong> iroboaifoundation@gmail.com</p>
+      <p><i class="fas fa-map-marker-alt"></i> <strong>Registered Office:</strong> 6-A, Industrial Area, Tilak Nagar, New Delhi – 110018</p>
+    </div>
+    <p style="margin-top: 40px; font-size: 1.2rem; text-align: center; padding: 20px; background: rgba(255,255,255,0.8); border-radius: 12px;"><strong>Partner with us to build a future-ready and inclusive India powered by AI, Robotics, and Coding.</strong></p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <p>© 2025 International Robotics and AI Foundation (IRAIF)</p>
+      <p class="footer-motto">Building Capability. Inspiring Innovation. Creating Impact.</p>
+      <div class="social-icons">
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+      </div>
+      <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7;">Charitable, Non-Profit Organization | Registered under the Companies Act, 2013</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript for Enhanced Interactivity -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // ===== SCROLL PROGRESS INDICATOR =====
+      const scrollProgress = document.getElementById('scrollProgress');
+      window.addEventListener('scroll', () => {
+        const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (window.pageYOffset / windowHeight) * 100;
+        scrollProgress.style.width = scrolled + '%';
+      });
+
+      // ===== MOBILE MENU TOGGLE =====
+      const menuBtn = document.getElementById('menuBtn');
+      const mainNav = document.getElementById('mainNav');
+      menuBtn.addEventListener('click', () => {
+        mainNav.classList.toggle('active');
+        menuBtn.setAttribute('aria-expanded', mainNav.classList.contains('active'));
+        menuBtn.innerHTML = mainNav.classList.contains('active')
+          ? '<i class="fas fa-times"></i>'
+          : '<i class="fas fa-bars"></i>';
+      });
+
+      // Close menu when clicking a link (for mobile)
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          if (mainNav.classList.contains('active')) {
+            mainNav.classList.remove('active');
+            menuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            menuBtn.setAttribute('aria-expanded', 'false');
+          }
+        });
+      });
+
+      // ===== STICKY HEADER ON SCROLL =====
+      const header = document.getElementById('mainHeader');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+
+      // ===== ACTIVE NAV LINK ON SCROLL =====
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.nav-link');
+
+      function highlightNavLink() {
+        let scrollY = window.pageYOffset;
+        sections.forEach(section => {
+          const sectionHeight = section.offsetHeight;
+          const sectionTop = section.offsetTop - 180; // Offset for header
+          const sectionId = section.getAttribute('id');
+          const correspondingLink = document.querySelector(`.nav-link[href="#${sectionId}"]`);
+
+          if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+            navLinks.forEach(link => link.classList.remove('active'));
+            if (correspondingLink) correspondingLink.classList.add('active');
+          }
+        });
+      }
+      window.addEventListener('scroll', highlightNavLink);
+
+      // ===== TYPING EFFECT =====
+      const typewriterElement = document.getElementById('typewriter');
+      const text = typewriterElement.textContent;
+      typewriterElement.textContent = '';
+      let i = 0;
+      function typeWriter() {
+        if (i < text.length) {
+          typewriterElement.textContent += text.charAt(i);
+          i++;
+          setTimeout(typeWriter, 50); // Speed of typing
+        } else {
+          // Blinking cursor effect after typing
+          setInterval(() => {
+            typewriterElement.style.borderRight = typewriterElement.style.borderRight === 'none' ? '3px solid #a8dadc' : 'none';
+          }, 500);
+        }
+      }
+      // Start typing after a short delay
+      setTimeout(typeWriter, 800);
+
+      // ===== INTERACTIVE 3D NEURAL NETWORK BACKGROUND =====
+      const canvas = document.getElementById('networkCanvas');
+      const ctx = canvas.getContext('2d');
+
+      // Set canvas to full window size
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      // Node (dot) class
+      class Node {
+        constructor() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.vx = (Math.random() - 0.5) * 0.7;
+          this.vy = (Math.random() - 0.5) * 0.7;
+          this.radius = Math.random() * 3 + 1;
+          this.color = `rgba(${Math.floor(15 + Math.random()*40)}, ${Math.floor(60 + Math.random()*40)}, ${Math.floor(95 + Math.random()*40)}, 0.8)`;
+          this.pulse = 0;
+          this.pulseSpeed = Math.random() * 0.05 + 0.02;
+        }
+        update() {
+          this.x += this.vx;
+          this.y += this.vy;
+          // Bounce off edges
+          if (this.x <= 0 || this.x >= canvas.width) this.vx *= -1;
+          if (this.y <= 0 || this.y >= canvas.height) this.vy *= -1;
+          // Keep within bounds
+          this.x = Math.max(1, Math.min(canvas.width - 1, this.x));
+          this.y = Math.max(1, Math.min(canvas.height - 1, this.y));
+          
+          // Pulse effect
+          this.pulse += this.pulseSpeed;
+        }
+        draw() {
+          const pulseRadius = this.radius + Math.sin(this.pulse) * 1.5;
+          
+          // Glow effect
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, pulseRadius * 2.5, 0, Math.PI * 2);
+          const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, pulseRadius * 2.5);
+          gradient.addColorStop(0, this.color.replace('0.8', '0.3'));
+          gradient.addColorStop(1, this.color.replace('0.8', '0'));
+          ctx.fillStyle = gradient;
+          ctx.fill();
+          
+          // Main node
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, pulseRadius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.fill();
+          
+          // Inner highlight
+          ctx.beginPath();
+          ctx.arc(this.x - this.radius/3, this.y - this.radius/3, this.radius/2, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+          ctx.fill();
+        }
+      }
+
+      // Create nodes
+      const nodeCount = Math.min(100, Math.floor((canvas.width * canvas.height) / 12000));
+      let nodes = [];
+      function initNodes() {
+        nodes = [];
+        for (let i = 0; i < nodeCount; i++) {
+          nodes.push(new Node());
+        }
+      }
+      initNodes();
+
+      // Draw a connection line between two nodes
+      function drawLine(node1, node2, distance) {
+        const opacity = Math.max(0, 1 - distance / 200); // Fade out with distance
+        ctx.beginPath();
+        ctx.moveTo(node1.x, node1.y);
+        ctx.lineTo(node2.x, node2.y);
+        
+        // Gradient line
+        const lineGradient = ctx.createLinearGradient(node1.x, node1.y, node2.x, node2.y);
+        lineGradient.addColorStop(0, `rgba(42, 157, 143, ${opacity * 0.5})`);
+        lineGradient.addColorStop(1, `rgba(15, 60, 95, ${opacity * 0.3})`);
+        
+        ctx.strokeStyle = lineGradient;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+
+      // Animation loop
+      function animate() {
+        // Clear canvas with a subtle fade effect for trailing lines
+        ctx.fillStyle = 'rgba(250, 250, 250, 0.03)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Update and draw nodes
+        nodes.forEach(node => {
+          node.update();
+          node.draw();
+        });
+
+        // Draw connections between nearby nodes
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const dx = nodes[i].x - nodes[j].x;
+            const dy = nodes[i].y - nodes[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < 200) { // Connection threshold
+              drawLine(nodes[i], nodes[j], distance);
+            }
+          }
+        }
+        requestAnimationFrame(animate);
+      }
+      animate();
+
+      // Reinitialize nodes on window resize
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+        initNodes();
+      });
+
+      // ===== CARD HOVER EFFECT ENHANCEMENT =====
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          this.style.transform = 'translateY(-15px) scale(1.02)';
+        });
+        card.addEventListener('mouseleave', function() {
+          this.style.transform = 'translateY(0) scale(1)';
+        });
+      });
+      
+      // ===== PARALLAX EFFECT ON SCROLL =====
+      window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.hero');
+        if (hero) {
+          hero.style.transform = `translateY(${scrolled * 0.05}px)`;
+        }
+      });
+    });
+  </script>
+</body>
+</html>

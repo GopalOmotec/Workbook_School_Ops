@@ -1,0 +1,11 @@
+flask
+flask-cors
+gunicorn
+psycopg2-binary
+sendgrid
+Flask==2.3.3
+Flask-CORS==4.0.0
+sendgrid==6.10.0
+python-dotenv==1.0.0
+mysql-connector-python==8.1.0
+bcrypt==4.0.1
