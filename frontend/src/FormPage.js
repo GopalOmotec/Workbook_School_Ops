@@ -16,12 +16,8 @@ import {
   FaComment,
   FaCheckCircle,
   FaUserCircle,
-  FaHome,
   FaExclamationTriangle,
   FaInfoCircle,
-  FaPlus,
-  FaHistory,
-  FaChartBar,
   FaMoon,
   FaSun
 } from 'react-icons/fa';
@@ -43,12 +39,6 @@ const gradientShift = keyframes`
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
-`;
-
-const pulseAnimation = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
 `;
 
 const fadeIn = keyframes`
@@ -720,7 +710,7 @@ const FormPage = () => {
   const [reportingBranch, setReportingBranch] = useState("");
   const [count, setCount] = useState("");
   const [remark, setRemark] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [grades, setGrades] = useState([]);
   const [userName, setUserName] = useState("User");
@@ -960,15 +950,7 @@ const FormPage = () => {
       navigate("/");
     }
   };
-
-  const handleDashboard = () => {
-    navigate("/dashboard");
-  };
-
-  const handleHistory = () => {
-    navigate("/history");
-  };
-
+  
   const handleClearForm = () => {
     if (window.confirm("Clear all form fields?")) {
       setSchool("");

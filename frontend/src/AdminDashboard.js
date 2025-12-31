@@ -1,18 +1,14 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import DataTable from "react-data-table-component";
 import styled, { keyframes } from "styled-components";
 import { toast, Toaster } from 'react-hot-toast';
 import { 
-  FaSchool, FaUsers, FaClipboardList, FaBookOpen, FaSearch, FaTimes, 
+  FaSchool, FaUsers, FaClipboardList, FaBookOpen, FaSearch, FaTimes,FaUserShield,FaRegClock,
   FaSignOutAlt, FaPlus, FaSave, FaTrash, FaEdit, FaCheck, FaTimesCircle, 
-  FaCalendarAlt, FaDownload, FaMinus, FaUserCircle, FaCaretDown,
-  FaDatabase, FaFilter, FaSync, FaChartBar, FaEye, FaEyeSlash, FaCog,
-  FaArrowUp, FaArrowDown, FaHistory, FaBox, FaBell, FaHome, 
-  FaChevronRight, FaLayerGroup, FaListAlt, FaWarehouse, FaRegClock,
-  FaRegCheckCircle, FaRegTimesCircle, FaBars, FaChevronLeft,
-  FaTachometerAlt, FaShieldAlt, FaFileExport, FaUserShield,
+  FaCalendarAlt, FaDownload, FaMinus, FaUserCircle,
+   FaSync,FaArrowUp, FaArrowDown,FaRegCheckCircle, FaRegTimesCircle, FaBars, FaChevronLeft,
   FaMapMarkerAlt, FaBuilding, FaEnvelope, FaLock, FaGraduationCap, FaBook, FaHashtag,
   FaMoon, FaSun
 } from 'react-icons/fa';
