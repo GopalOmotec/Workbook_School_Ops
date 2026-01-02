@@ -1,0 +1,7 @@
+__pycache__/
+.env
+*.db
+*.bak_*
+*.sql
+*.xlsx
+node_modules/

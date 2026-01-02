@@ -25,8 +25,9 @@ load_dotenv()
 app = Flask(__name__)
 # Broaden CORS to avoid local dev blocks
 CORS(
-    app,
-    resources={r"/*": {"origins": "*"}},
+    app,origins=[
+    "https://workbook-school-ops-6qxy.vercel.app"
+],resources={r"/*": {"origins": "*"}},
     supports_credentials=False,
     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
