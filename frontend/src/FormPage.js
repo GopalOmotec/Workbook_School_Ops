@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styled, { keyframes } from "styled-components";
 import { toast, Toaster } from 'react-hot-toast';
-import { 
-  FaSave, 
-  FaSignOutAlt, 
-  FaSchool, 
-  FaMapMarkerAlt, 
-  FaGraduationCap, 
-  FaBook, 
+import {
+  FaSave,
+  FaSignOutAlt,
+  FaSchool,
+  FaMapMarkerAlt,
+  FaGraduationCap,
+  FaBook,
   FaCalendarAlt,
   FaBuilding,
   FaHashtag,
@@ -228,9 +228,9 @@ const LogoSection = styled.div`
       font-size: 28px;
       margin: 0 0 6px 0;
       font-weight: 700;
-      background: ${({ dark }) => dark 
-        ? 'linear-gradient(135deg, #60A5FA, #A78BFA)' 
-        : 'linear-gradient(135deg, #2563EB, #7C3AED)'};
+      background: ${({ dark }) => dark
+    ? 'linear-gradient(135deg, #60A5FA, #A78BFA)'
+    : 'linear-gradient(135deg, #2563EB, #7C3AED)'};
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -325,22 +325,22 @@ const Button = styled.button`
   
   &:hover:not(:disabled) {
     transform: translateY(-3px);
-    box-shadow: ${props => props.variant === 'danger' 
-      ? '0 15px 30px rgba(220, 38, 38, 0.3)' 
-      : '0 15px 30px rgba(37, 99, 235, 0.3)'};
+    box-shadow: ${props => props.variant === 'danger'
+    ? '0 15px 30px rgba(220, 38, 38, 0.3)'
+    : '0 15px 30px rgba(37, 99, 235, 0.3)'};
     
     ${props => {
-      if (props.variant === 'primary') {
-        return 'background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);';
-      }
-      if (props.variant === 'danger') {
-        return 'background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);';
-      }
-      if (props.dark) {
-        return 'background: rgba(37, 99, 235, 0.1); color: #60A5FA;';
-      }
-      return 'background: rgba(59, 130, 246, 0.1); color: #2563EB;';
-    }}
+    if (props.variant === 'primary') {
+      return 'background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);';
+    }
+    if (props.variant === 'danger') {
+      return 'background: linear-gradient(135deg, #EF4444 0%, #F87171 100%);';
+    }
+    if (props.dark) {
+      return 'background: rgba(37, 99, 235, 0.1); color: #60A5FA;';
+    }
+    return 'background: rgba(59, 130, 246, 0.1); color: #2563EB;';
+  }}
   }
   
   &:active:not(:disabled) {
@@ -466,8 +466,8 @@ const Input = styled.input`
   width: 100%;
   padding: 18px 20px 18px 60px !important;
   background: ${({ dark }) => dark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(255, 255, 255, 0.9)'};
-  border: 1px solid ${({ error, dark }) => error 
-    ? 'rgba(220, 38, 38, 0.3)' 
+  border: 1px solid ${({ error, dark }) => error
+    ? 'rgba(220, 38, 38, 0.3)'
     : dark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(203, 213, 225, 0.8)'};
   border-radius: 16px;
   font-size: 15px;
@@ -501,8 +501,8 @@ const Select = styled.select`
   width: 100%;
   padding: 18px 20px 18px 60px !important;
   background: ${({ dark }) => dark ? 'rgba(15, 23, 42, 0.6)' : 'rgba(255, 255, 255, 0.9)'};
-  border: 1px solid ${({ error, dark }) => error 
-    ? 'rgba(220, 38, 38, 0.3)' 
+  border: 1px solid ${({ error, dark }) => error
+    ? 'rgba(220, 38, 38, 0.3)'
     : dark ? 'rgba(71, 85, 105, 0.3)' : 'rgba(203, 213, 225, 0.8)'};
   border-radius: 16px;
   font-size: 15px;
@@ -613,9 +613,9 @@ const StatCard = styled.div`
     font-weight: 700;
     color: ${({ dark }) => dark ? '#F8FAFC' : '#0F172A'};
     margin-bottom: 8px;
-    background: ${({ dark }) => dark 
-      ? 'linear-gradient(135deg, #60A5FA, #A78BFA)' 
-      : 'linear-gradient(135deg, #2563EB, #7C3AED)'};
+    background: ${({ dark }) => dark
+    ? 'linear-gradient(135deg, #60A5FA, #A78BFA)'
+    : 'linear-gradient(135deg, #2563EB, #7C3AED)'};
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -740,7 +740,7 @@ const FormPage = () => {
   useEffect(() => {
     const storedRole = localStorage.getItem("userRole");
     const storedEmail = localStorage.getItem("userEmail");
-    
+
     if (!storedRole || !storedEmail || storedRole === "admin") {
       navigate("/", { replace: true });
     }
@@ -750,7 +750,7 @@ const FormPage = () => {
   useEffect(() => {
     const isValid = school && location && grade && term && workbook && count && remark;
     setFormValid(isValid);
-    
+
     const newErrors = {};
     if (!school) newErrors.school = "School is required";
     if (!location) newErrors.location = "Location is required";
@@ -765,7 +765,13 @@ const FormPage = () => {
   // Fetch Grades
   useEffect(() => {
     axios.get(`${API_BASE}/grades`)
-      .then(res => setGrades(res.data || []))
+      .then((res) => {
+        const data = Array.isArray(res.data)
+          ? res.data
+          : res.data?.schools || [];
+        setSchools(data);
+      })
+
       .catch(() => setGrades([]));
   }, []);
 
@@ -813,7 +819,11 @@ const FormPage = () => {
       const res = await axios.get(`${API_BASE}/locations`, {
         params: { school: s },
       });
-      setLocations(res.data || []);
+      const data = Array.isArray(res.data)
+  ? res.data
+  : res.data?.locations || [];
+setLocations(data);
+
       if (res.data?.length === 1) {
         const onlyLoc = res.data[0];
         setLocation(onlyLoc);
@@ -839,7 +849,7 @@ const FormPage = () => {
   // Fetch User Stats
   const fetchUserStats = async () => {
     if (!userEmail) return;
-    
+
     try {
       const res = await axios.get(`${API_BASE}/user-stats`, {
         params: { email: userEmail }
@@ -870,7 +880,7 @@ const FormPage = () => {
     setTerm("");
     setWorkbook("");
     setWorkbookOptions([]);
-    
+
     if (school && loc) {
       fetchReportingBranch(school, loc);
     } else {
@@ -887,12 +897,12 @@ const FormPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formValid) {
       toast.error("Please fill all required fields correctly");
       return;
     }
-    
+
     setSubmitting(true);
     try {
       const response = await axios.post(`${API_BASE}/submit`, {
@@ -905,7 +915,7 @@ const FormPage = () => {
         remark,
         submitted_by: userEmail,
       });
-      
+
       if (response.data.success) {
         toast.success("Entry submitted successfully!", {
           icon: '🎉',
@@ -914,12 +924,12 @@ const FormPage = () => {
             color: '#fff',
           },
         });
-        
+
         setSuccessMessage("Entry submitted successfully! The form will reset in 2 seconds.");
-        
+
         // Update stats
         fetchUserStats();
-        
+
         setTimeout(() => {
           setSchool("");
           setLocation("");
@@ -950,7 +960,7 @@ const FormPage = () => {
       navigate("/");
     }
   };
-  
+
   const handleClearForm = () => {
     if (window.confirm("Clear all form fields?")) {
       setSchool("");
@@ -983,13 +993,13 @@ const FormPage = () => {
           {dark ? <FaSun /> : <FaMoon />}
           {dark ? "Light Mode" : "Dark Mode"}
         </ToggleButton>
-        
+
         <FloatingElements>
           <FloatingElement dark={dark} />
           <FloatingElement dark={dark} duration="25s" />
           <FloatingElement dark={dark} duration="30s" />
         </FloatingElements>
-        
+
         <MainCard dark={dark}>
           <Header dark={dark}>
             <LogoSection dark={dark}>
@@ -999,7 +1009,7 @@ const FormPage = () => {
                 <p>Workbook Entry System</p>
               </div>
             </LogoSection>
-            
+
             <UserSection>
               <UserInfo dark={dark}>
                 <div className="user-avatar">
@@ -1010,14 +1020,14 @@ const FormPage = () => {
                   <div className="user-role">User</div>
                 </div>
               </UserInfo>
-              
+
               <Button variant="danger" onClick={handleLogout}>
                 <FaSignOutAlt />
                 Logout
               </Button>
             </UserSection>
           </Header>
-          
+
           <Content>
             <StatsGrid>
               <StatCard dark={dark}>
@@ -1037,7 +1047,7 @@ const FormPage = () => {
                 <div className="stat-label">Pending Review</div>
               </StatCard>
             </StatsGrid>
-            
+
             <FormHeader dark={dark}>
               <h2>
                 <FaBook />
@@ -1047,312 +1057,312 @@ const FormPage = () => {
                 Fill in the details below to submit a new workbook entry. All fields marked with * are required.
               </p>
             </FormHeader>
-            
+
             {successMessage && (
               <SuccessMessage dark={dark}>
                 <FaCheckCircle />
                 {successMessage}
               </SuccessMessage>
             )}
-            
+
             <InfoCard dark={dark}>
               <FaInfoCircle />
               Ensure all information is accurate before submission. You can track your submission history in the dashboard.
             </InfoCard>
-            
+
             <FormCard dark={dark}>
               <FormContainer>
-              <form onSubmit={handleSubmit}>
-                <FormGrid>
-                  {/* School */}
-                  <FormGroup>
-                    <Label dark={dark}>
-                      <FaSchool />
-                      School *
-                    </Label>
-                    <InputWrapper>
-                      <InputIcon error={errors.school} dark={dark}>
+                <form onSubmit={handleSubmit}>
+                  <FormGrid>
+                    {/* School */}
+                    <FormGroup>
+                      <Label dark={dark}>
                         <FaSchool />
-                      </InputIcon>
-                      <Select
-                        dark={dark}
-                        value={school}
-                        onChange={(e) => handleSchoolChange(e.target.value)}
-                        error={errors.school}
-                        disabled={loading}
-                      >
-                        <option value="">Select School</option>
-                        {schools.map((s, i) => (
-                          <option key={i} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </Select>
-                    </InputWrapper>
-                    {errors.school && (
-                      <ErrorText>
-                        <FaExclamationTriangle />
-                        {errors.school}
-                      </ErrorText>
-                    )}
-                  </FormGroup>
-
-                  {/* Location */}
-                  <FormGroup>
-                    <Label dark={dark}>
-                      <FaMapMarkerAlt />
-                      Location *
-                    </Label>
-                    <InputWrapper>
-                      <InputIcon error={errors.location} dark={dark}>
-                        <FaMapMarkerAlt />
-                      </InputIcon>
-                      {locations.length > 1 ? (
+                        School *
+                      </Label>
+                      <InputWrapper>
+                        <InputIcon error={errors.school} dark={dark}>
+                          <FaSchool />
+                        </InputIcon>
                         <Select
                           dark={dark}
-                          value={location}
-                          onChange={(e) => handleLocationChange(e.target.value)}
-                          error={errors.location}
-                          disabled={!school}
+                          value={school}
+                          onChange={(e) => handleSchoolChange(e.target.value)}
+                          error={errors.school}
+                          disabled={loading}
                         >
-                          <option value="">Select Location</option>
-                          {locations.map((l, i) => (
-                            <option key={i} value={l}>
-                              {l}
+                          <option value="">Select School</option>
+                          {schools.map((s, i) => (
+                            <option key={i} value={s}>
+                              {s}
                             </option>
                           ))}
                         </Select>
-                      ) : (
+                      </InputWrapper>
+                      {errors.school && (
+                        <ErrorText>
+                          <FaExclamationTriangle />
+                          {errors.school}
+                        </ErrorText>
+                      )}
+                    </FormGroup>
+
+                    {/* Location */}
+                    <FormGroup>
+                      <Label dark={dark}>
+                        <FaMapMarkerAlt />
+                        Location *
+                      </Label>
+                      <InputWrapper>
+                        <InputIcon error={errors.location} dark={dark}>
+                          <FaMapMarkerAlt />
+                        </InputIcon>
+                        {locations.length > 1 ? (
+                          <Select
+                            dark={dark}
+                            value={location}
+                            onChange={(e) => handleLocationChange(e.target.value)}
+                            error={errors.location}
+                            disabled={!school}
+                          >
+                            <option value="">Select Location</option>
+                            {locations.map((l, i) => (
+                              <option key={i} value={l}>
+                                {l}
+                              </option>
+                            ))}
+                          </Select>
+                        ) : (
+                          <Input
+                            dark={dark}
+                            value={location}
+                            onChange={(e) => handleLocationChange(e.target.value)}
+                            placeholder="Location will auto-fill if only one exists"
+                            error={errors.location}
+                            disabled={!school}
+                          />
+                        )}
+                      </InputWrapper>
+                      {errors.location && (
+                        <ErrorText>
+                          <FaExclamationTriangle />
+                          {errors.location}
+                        </ErrorText>
+                      )}
+                    </FormGroup>
+
+                    {/* Grade */}
+                    <FormGroup>
+                      <Label dark={dark}>
+                        <FaGraduationCap />
+                        Grade *
+                      </Label>
+                      <InputWrapper>
+                        <InputIcon error={errors.grade} dark={dark}>
+                          <FaGraduationCap />
+                        </InputIcon>
+                        <Select
+                          dark={dark}
+                          value={grade}
+                          onChange={(e) => handleGradeChange(e.target.value)}
+                          error={errors.grade}
+                          disabled={!location}
+                        >
+                          <option value="">Select Grade</option>
+                          {grades.map((g, i) => (
+                            <option key={i} value={g}>
+                              {g}
+                            </option>
+                          ))}
+                        </Select>
+                      </InputWrapper>
+                      {errors.grade && (
+                        <ErrorText>
+                          <FaExclamationTriangle />
+                          {errors.grade}
+                        </ErrorText>
+                      )}
+                    </FormGroup>
+
+                    {/* Term */}
+                    <FormGroup>
+                      <Label dark={dark}>
+                        <FaCalendarAlt />
+                        Term *
+                      </Label>
+                      <InputWrapper>
+                        <InputIcon error={errors.term} dark={dark}>
+                          <FaCalendarAlt />
+                        </InputIcon>
+                        <Select
+                          dark={dark}
+                          value={term}
+                          onChange={(e) => setTerm(e.target.value)}
+                          error={errors.term}
+                          disabled={!grade}
+                        >
+                          <option value="">Select Term</option>
+                          {[1, 2, 3].map((t) => (
+                            <option key={t} value={t}>
+                              Term {t}
+                            </option>
+                          ))}
+                        </Select>
+                      </InputWrapper>
+                      {errors.term && (
+                        <ErrorText>
+                          <FaExclamationTriangle />
+                          {errors.term}
+                        </ErrorText>
+                      )}
+                    </FormGroup>
+
+                    {/* Workbook */}
+                    <FormGroup>
+                      <Label dark={dark}>
+                        <FaBook />
+                        Workbook *
+                      </Label>
+                      <InputWrapper>
+                        <InputIcon error={errors.workbook} dark={dark}>
+                          <FaBook />
+                        </InputIcon>
+                        <Select
+                          dark={dark}
+                          value={workbook}
+                          onChange={(e) => setWorkbook(e.target.value)}
+                          error={errors.workbook}
+                          disabled={!term || workbookOptions.length === 0}
+                        >
+                          <option value="">Select Workbook</option>
+                          {workbookOptions.map((wb, i) => (
+                            <option key={i} value={wb}>
+                              {wb}
+                            </option>
+                          ))}
+                        </Select>
+                      </InputWrapper>
+                      {errors.workbook && (
+                        <ErrorText>
+                          <FaExclamationTriangle />
+                          {errors.workbook}
+                        </ErrorText>
+                      )}
+                    </FormGroup>
+
+                    {/* Reporting Branch */}
+                    <FormGroup>
+                      <Label dark={dark}>
+                        <FaBuilding />
+                        Reporting Branch
+                      </Label>
+                      <InputWrapper>
+                        <InputIcon dark={dark}>
+                          <FaBuilding />
+                        </InputIcon>
                         <Input
                           dark={dark}
-                          value={location}
-                          onChange={(e) => handleLocationChange(e.target.value)}
-                          placeholder="Location will auto-fill if only one exists"
-                          error={errors.location}
-                          disabled={!school}
+                          value={reportingBranch}
+                          readOnly
+                          placeholder="Auto-filled based on school and location"
                         />
-                      )}
-                    </InputWrapper>
-                    {errors.location && (
-                      <ErrorText>
-                        <FaExclamationTriangle />
-                        {errors.location}
-                      </ErrorText>
-                    )}
-                  </FormGroup>
+                      </InputWrapper>
+                    </FormGroup>
 
-                  {/* Grade */}
-                  <FormGroup>
-                    <Label dark={dark}>
-                      <FaGraduationCap />
-                      Grade *
-                    </Label>
-                    <InputWrapper>
-                      <InputIcon error={errors.grade} dark={dark}>
-                        <FaGraduationCap />
-                      </InputIcon>
-                      <Select
-                        dark={dark}
-                        value={grade}
-                        onChange={(e) => handleGradeChange(e.target.value)}
-                        error={errors.grade}
-                        disabled={!location}
-                      >
-                        <option value="">Select Grade</option>
-                        {grades.map((g, i) => (
-                          <option key={i} value={g}>
-                            {g}
-                          </option>
-                        ))}
-                      </Select>
-                    </InputWrapper>
-                    {errors.grade && (
-                      <ErrorText>
-                        <FaExclamationTriangle />
-                        {errors.grade}
-                      </ErrorText>
-                    )}
-                  </FormGroup>
-
-                  {/* Term */}
-                  <FormGroup>
-                    <Label dark={dark}>
-                      <FaCalendarAlt />
-                      Term *
-                    </Label>
-                    <InputWrapper>
-                      <InputIcon error={errors.term} dark={dark}>
-                        <FaCalendarAlt />
-                      </InputIcon>
-                      <Select
-                        dark={dark}
-                        value={term}
-                        onChange={(e) => setTerm(e.target.value)}
-                        error={errors.term}
-                        disabled={!grade}
-                      >
-                        <option value="">Select Term</option>
-                        {[1, 2, 3].map((t) => (
-                          <option key={t} value={t}>
-                            Term {t}
-                          </option>
-                        ))}
-                      </Select>
-                    </InputWrapper>
-                    {errors.term && (
-                      <ErrorText>
-                        <FaExclamationTriangle />
-                        {errors.term}
-                      </ErrorText>
-                    )}
-                  </FormGroup>
-
-                  {/* Workbook */}
-                  <FormGroup>
-                    <Label dark={dark}>
-                      <FaBook />
-                      Workbook *
-                    </Label>
-                    <InputWrapper>
-                      <InputIcon error={errors.workbook} dark={dark}>
-                        <FaBook />
-                      </InputIcon>
-                      <Select
-                        dark={dark}
-                        value={workbook}
-                        onChange={(e) => setWorkbook(e.target.value)}
-                        error={errors.workbook}
-                        disabled={!term || workbookOptions.length === 0}
-                      >
-                        <option value="">Select Workbook</option>
-                        {workbookOptions.map((wb, i) => (
-                          <option key={i} value={wb}>
-                            {wb}
-                          </option>
-                        ))}
-                      </Select>
-                    </InputWrapper>
-                    {errors.workbook && (
-                      <ErrorText>
-                        <FaExclamationTriangle />
-                        {errors.workbook}
-                      </ErrorText>
-                    )}
-                  </FormGroup>
-
-                  {/* Reporting Branch */}
-                  <FormGroup>
-                    <Label dark={dark}>
-                      <FaBuilding />
-                      Reporting Branch
-                    </Label>
-                    <InputWrapper>
-                      <InputIcon dark={dark}>
-                        <FaBuilding />
-                      </InputIcon>
-                      <Input
-                        dark={dark}
-                        value={reportingBranch}
-                        readOnly
-                        placeholder="Auto-filled based on school and location"
-                      />
-                    </InputWrapper>
-                  </FormGroup>
-
-                  {/* Count */}
-                  <FormGroup>
-                    <Label dark={dark}>
-                      <FaHashtag />
-                      Count *
-                    </Label>
-                    <InputWrapper>
-                      <InputIcon error={errors.count} dark={dark}>
+                    {/* Count */}
+                    <FormGroup>
+                      <Label dark={dark}>
                         <FaHashtag />
-                      </InputIcon>
-                      <Input
-                        dark={dark}
-                        type="number"
-                        min="1"
-                        value={count}
-                        onChange={(e) => setCount(Math.max(1, e.target.value))}
-                        placeholder="Enter count"
-                        error={errors.count}
-                      />
-                    </InputWrapper>
-                    {errors.count && (
-                      <ErrorText>
-                        <FaExclamationTriangle />
-                        {errors.count}
-                      </ErrorText>
-                    )}
-                  </FormGroup>
+                        Count *
+                      </Label>
+                      <InputWrapper>
+                        <InputIcon error={errors.count} dark={dark}>
+                          <FaHashtag />
+                        </InputIcon>
+                        <Input
+                          dark={dark}
+                          type="number"
+                          min="1"
+                          value={count}
+                          onChange={(e) => setCount(Math.max(1, e.target.value))}
+                          placeholder="Enter count"
+                          error={errors.count}
+                        />
+                      </InputWrapper>
+                      {errors.count && (
+                        <ErrorText>
+                          <FaExclamationTriangle />
+                          {errors.count}
+                        </ErrorText>
+                      )}
+                    </FormGroup>
 
-                  {/* Remark */}
-                  <FormGroup>
-                    <Label dark={dark}>
-                      <FaComment />
-                      Remark *
-                    </Label>
-                    <InputWrapper>
-                      <InputIcon error={errors.remark} dark={dark}>
+                    {/* Remark */}
+                    <FormGroup>
+                      <Label dark={dark}>
                         <FaComment />
-                      </InputIcon>
-                      <Input
-                        dark={dark}
-                        value={remark}
-                        onChange={(e) => setRemark(e.target.value)}
-                        placeholder="Enter remarks (minimum 3 characters)"
-                        error={errors.remark}
-                      />
-                    </InputWrapper>
-                    {errors.remark && (
-                      <ErrorText>
-                        <FaExclamationTriangle />
-                        {errors.remark}
-                      </ErrorText>
-                    )}
-                  </FormGroup>
-                </FormGrid>
+                        Remark *
+                      </Label>
+                      <InputWrapper>
+                        <InputIcon error={errors.remark} dark={dark}>
+                          <FaComment />
+                        </InputIcon>
+                        <Input
+                          dark={dark}
+                          value={remark}
+                          onChange={(e) => setRemark(e.target.value)}
+                          placeholder="Enter remarks (minimum 3 characters)"
+                          error={errors.remark}
+                        />
+                      </InputWrapper>
+                      {errors.remark && (
+                        <ErrorText>
+                          <FaExclamationTriangle />
+                          {errors.remark}
+                        </ErrorText>
+                      )}
+                    </FormGroup>
+                  </FormGrid>
 
-                <ActionButtons>
-                  <Button 
-                    type="submit"
-                    variant="primary"
-                    disabled={!formValid || submitting}
-                    style={{ flex: 1 }}
-                  >
-                    {submitting ? <LoadingSpinner /> : <FaSave />}
-                    {submitting ? "Submitting..." : "Submit Entry"}
-                  </Button>
-                  
-                  <Button 
-                    type="button"
-                    dark={dark}
-                    onClick={handleClearForm}
-                    disabled={submitting}
-                  >
-                    Clear Form
-                  </Button>
-                </ActionButtons>
-              </form>
+                  <ActionButtons>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      disabled={!formValid || submitting}
+                      style={{ flex: 1 }}
+                    >
+                      {submitting ? <LoadingSpinner /> : <FaSave />}
+                      {submitting ? "Submitting..." : "Submit Entry"}
+                    </Button>
+
+                    <Button
+                      type="button"
+                      dark={dark}
+                      onClick={handleClearForm}
+                      disabled={submitting}
+                    >
+                      Clear Form
+                    </Button>
+                  </ActionButtons>
+                </form>
               </FormContainer>
             </FormCard>
-            
+
             <QuickActions>
-                      
-                        
+
+
               <QuickActionButton dark={dark} onClick={() => navigate("/help")}>
                 <FaInfoCircle />
                 Help & Guide
               </QuickActionButton>
-              
+
               <QuickActionButton dark={dark} onClick={() => window.location.href = "mailto:support@onmyowntechnology.com"}>
                 <FaComment />
                 Contact Support
               </QuickActionButton>
             </QuickActions>
           </Content>
-          
+
           <Footer dark={dark}>
             <p>© {new Date().getFullYear()} OMOTEC Education Systems</p>
             <p>Workbook Management System • Version 2.0.1</p>
@@ -1365,7 +1375,7 @@ const FormPage = () => {
 
   return (
     <>
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           duration: 4000,
