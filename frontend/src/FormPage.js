@@ -765,14 +765,16 @@ const FormPage = () => {
   // Fetch Grades
   useEffect(() => {
     axios.get(`${API_BASE}/grades`)
-      .then((res) => {
+      .then(res => {
         const data = Array.isArray(res.data)
           ? res.data
-          : res.data?.schools || [];
-        setSchools(data);
+          : Array.isArray(res.data?.grades)
+            ? res.data.grades
+            : [];
+        setGrades(data);
       })
-
       .catch(() => setGrades([]));
+
   }, []);
 
   // Fetch Workbook Options
@@ -809,7 +811,14 @@ const FormPage = () => {
   useEffect(() => {
     axios
       .get(`${API_BASE}/schools`)
-      .then((res) => setSchools(res.data || []))
+      .then((res) => {
+        const data = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data?.schools)
+            ? res.data.schools
+            : [];
+        setSchools(data);
+      })
       .catch(() => setSchools([]));
   }, []);
 
@@ -820,9 +829,9 @@ const FormPage = () => {
         params: { school: s },
       });
       const data = Array.isArray(res.data)
-  ? res.data
-  : res.data?.locations || [];
-setLocations(data);
+        ? res.data
+        : res.data?.locations || [];
+      setLocations(data);
 
       if (res.data?.length === 1) {
         const onlyLoc = res.data[0];

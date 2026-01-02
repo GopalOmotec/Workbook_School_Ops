@@ -1,6 +1,5 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_cors import cross_origin
 import mysql.connector
 from mysql.connector import Error
 import os
@@ -8,86 +7,88 @@ from datetime import datetime, timedelta
 import secrets
 import bcrypt
 from dotenv import load_dotenv
-
 import smtplib
 import ssl
 from email.mime.text import MIMEText
+import time
+from functools import wraps
 
-# ------------------ MySQL Configuration ------------------
-MYSQL_HOST = os.environ.get("MYSQL_HOST", "localhost")
-MYSQL_USER = os.environ.get("MYSQL_USER","root")
-MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD","root")
-MYSQL_DATABASE = os.environ.get("MYSQL_DATABASE","workbook")
-MYSQL_PORT = os.environ.get("MYSQL_PORT",3306)
-
+# ------------------ Configuration ------------------
+# Load environment variables FIRST
 load_dotenv()
 
+# MySQL Configuration
+MYSQL_HOST = os.environ.get("MYSQL_HOST", "localhost")
+MYSQL_USER = os.environ.get("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD", "root")
+MYSQL_DATABASE = os.environ.get("MYSQL_DATABASE", "workbook")
+MYSQL_PORT = int(os.environ.get("MYSQL_PORT", 3306))
+
+# SMTP Configuration
+SMTP_SERVER = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", 587))
+SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "gopal.vishvakarma@onmyowntechnology.com")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "vmiucuiykdrlqnnn")
+FROM_EMAIL = os.environ.get("FROM_EMAIL", "gopal.vishvakarma@onmyowntechnology.com")
+
+# ------------------ Initialize Flask App ------------------
 app = Flask(__name__)
-# Broaden CORS to avoid local dev blocks
-CORS(
-    app,origins=[
-    "https://workbook-school-ops-6qxy.vercel.app"
-],resources={r"/*": {"origins": "*"}},
-    supports_credentials=False,
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
-    expose_headers=["Content-Type"]
-)
 
-@app.after_request
-def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = request.headers.get("Origin", "*")
-    response.headers["Vary"] = "Origin"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Headers"] = request.headers.get(
-        "Access-Control-Request-Headers", "Content-Type, Authorization"
-    )
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-    return response
+# Simple CORS configuration
+CORS(app, supports_credentials=True)
 
-
-
-
-# ------------------ PASSWORD HASHING ------------------
+# ------------------ Helper Functions ------------------
 def hash_password(password: str) -> str:
     """Hash password using bcrypt"""
-    salt = bcrypt.gensalt()  # generate a random salt
+    salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed.decode('utf-8')  # store as string in DB
+    return hashed.decode('utf-8')
 
 def verify_password(password: str, hashed: str) -> bool:
     """Verify password against bcrypt hash"""
     return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
-
 
 def _to_datetime(value):
     """Convert MySQL DATETIME (str or datetime) to datetime.datetime."""
     if isinstance(value, datetime):
         return value
     if isinstance(value, str):
-        # Try common MySQL formats
         for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f"):
             try:
                 return datetime.strptime(value, fmt)
             except ValueError:
                 pass
-    # Fallback: return as-is; comparisons will fail loudly
     return value
 
-
-# ------------------ SMTP EMAIL ------------------
-SMTP_SERVER = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
-SMTP_PORT = int(os.environ.get("SMTP_PORT", 587))
-# Hardcoded fallbacks as requested (env vars still take precedence if set)
-SMTP_USERNAME = os.environ.get("SMTP_USERNAME", "gopal.vishvakarma@onmyowntechnology.com")
-SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "vmiucuiykdrlqnnn")
-FROM_EMAIL = os.environ.get("FROM_EMAIL", "gopal.vishvakarma@onmyowntechnology.com")
+def get_conn():
+    """Get MySQL database connection with retry logic"""
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            conn = mysql.connector.connect(
+                host=MYSQL_HOST,
+                user=MYSQL_USER,
+                password=MYSQL_PASSWORD,
+                database=MYSQL_DATABASE,
+                port=MYSQL_PORT,
+                connection_timeout=10
+            )
+            if conn.is_connected():
+                return conn
+        except Error as e:
+            print(f"MySQL connection attempt {attempt + 1} failed: {e}")
+            if attempt == max_retries - 1:
+                raise
+            time.sleep(1)
+    return None
 
 def send_reset_email(to_email: str, reset_link: str) -> None:
+    """Send password reset email"""
     if not SMTP_SERVER or not SMTP_PORT or not FROM_EMAIL:
         raise RuntimeError("SMTP not configured")
     if SMTP_USERNAME and not SMTP_PASSWORD:
         raise RuntimeError("SMTP password missing")
+    
     subject = "OMOTEC Password Reset"
     html_content = f"""
         <p>Hello,</p>
@@ -96,7 +97,7 @@ def send_reset_email(to_email: str, reset_link: str) -> None:
         <a href=\"{reset_link}\">{reset_link}</a></p>
         <p>If you did not request this, ignore this email.</p>
         <p>- OMOTEC Team</p>
-        """
+    """
 
     msg = MIMEText(html_content, "html")
     msg["Subject"] = subject
@@ -112,12 +113,13 @@ def send_reset_email(to_email: str, reset_link: str) -> None:
             if SMTP_USERNAME and SMTP_PASSWORD:
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
             server.sendmail(FROM_EMAIL, [to_email], msg.as_string())
-        print("SMTP email sent successfully to", to_email)
+        print(f"Reset email sent to {to_email}")
     except Exception as e:
-        print("SMTP error:", e)
-        raise e
+        print(f"SMTP error: {e}")
+        raise
 
 def send_otp_email(to_email: str, otp_code: str) -> None:
+    """Send OTP email"""
     if not SMTP_SERVER or not SMTP_PORT or not FROM_EMAIL:
         raise RuntimeError("SMTP not configured")
     if SMTP_USERNAME and not SMTP_PASSWORD:
@@ -146,28 +148,9 @@ def send_otp_email(to_email: str, otp_code: str) -> None:
             if SMTP_USERNAME and SMTP_PASSWORD:
                 server.login(SMTP_USERNAME, SMTP_PASSWORD)
             server.sendmail(FROM_EMAIL, [to_email], msg.as_string())
-        print("SMTP OTP email sent successfully to", to_email)
+        print(f"OTP email sent to {to_email}")
     except Exception as e:
-        print("SMTP error (otp):", e)
-        raise e
-
-# ------------------ MySQL Connection ------------------
-def get_conn():
-    """Get MySQL database connection"""
-    try:
-        conn = mysql.connector.connect(
-            host=MYSQL_HOST,
-            user=MYSQL_USER,
-            password=MYSQL_PASSWORD,
-            database=MYSQL_DATABASE,
-            port=MYSQL_PORT
-        )
-        if conn.is_connected():
-            # Optional: print connection info
-            print(f"Connected to MySQL database '{MYSQL_DATABASE}' as '{MYSQL_USER}'")
-        return conn
-    except Error as e:
-        print(f"Error connecting to MySQL: {e}")
+        print(f"SMTP error (otp): {e}")
         raise
 
 def init_db():
@@ -252,6 +235,32 @@ def init_db():
 
     conn.commit()
     conn.close()
+    print("✅ Database tables initialized")
+
+# ------------------ Initialize Database ------------------
+print("🔧 Initializing MySQL database...")
+try:
+    init_db()
+    print("✅ Database initialized successfully!")
+except Exception as e:
+    print(f"❌ Database initialization failed: {e}")
+
+# ------------------ Health Check ------------------
+@app.route("/")
+def index():
+    return jsonify({"message": "Workbook Management API", "status": "running"})
+
+@app.route("/health", methods=["GET"])
+def health_check():
+    """Health check endpoint for database connection"""
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        conn.close()
+        return jsonify({"status": "healthy", "database": "connected"})
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "database": "disconnected", "error": str(e)}), 500
 
 # ------------------ AUTH APIs ------------------
 @app.route("/login", methods=["POST"])
@@ -260,10 +269,7 @@ def login():
     email = (data.get("email") or "").strip()
     password = data.get("password") or ""
 
-    print("Login attempt:", email, password)  # Debug
-
     if not email.endswith("@onmyowntechnology.com"):
-        print("❌ Invalid domain")
         return jsonify({"success": False, "message": "Invalid domain"}), 401
 
     conn = get_conn()
@@ -272,33 +278,21 @@ def login():
     row = cur.fetchone()
     conn.close()
 
-    print("Row from DB:", row)  # Debug
-
     if row:
         stored_hash, role = row[0], row[1]
-        print("Stored hash:", stored_hash)  # Debug
-        print("Password check:", verify_password(password, stored_hash))  # Debug
-
         if verify_password(password, stored_hash):
-            print("✅ Login success")
             return jsonify({"success": True, "role": role, "email": email})
 
-    print("❌ Invalid credentials")
     return jsonify({"success": False, "message": "Invalid credentials"}), 401
 
-
 # ------------------ PASSWORD RESET (LINK + OTP) ------------------
-@app.route("/send-otp", methods=["POST", "OPTIONS"])
-@cross_origin()
+@app.route("/send-otp", methods=["POST"])
 def send_otp():
-    if request.method == "OPTIONS":
-        return ("", 204)
     data = request.json or {}
     email = (data.get("email") or "").strip()
     if not email:
         return jsonify({"success": False, "message": "Email required"}), 400
 
-    # Only proceed if user exists (do not reveal existence)
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("SELECT id FROM users WHERE email=%s", (email,))
@@ -307,7 +301,6 @@ def send_otp():
         conn.close()
         return jsonify({"success": True, "message": "If the email exists, OTP will be sent."})
 
-    # Generate 6-digit OTP
     otp_code = str(secrets.randbelow(900000) + 100000)
     expires = datetime.utcnow() + timedelta(minutes=10)
 
@@ -322,12 +315,9 @@ def send_otp():
     except Exception as e:
         return jsonify({"success": False, "message": f"Failed to send OTP: {str(e)}"}), 500
 
-@app.route("/verify-otp", methods=["POST", "OPTIONS"])
-@cross_origin()
+@app.route("/verify-otp", methods=["POST"])
 def verify_otp():
     try:
-        if request.method == "OPTIONS":
-            return ("", 204)
         data = request.json or {}
         email = (data.get("email") or "").strip()
         otp = (data.get("otp") or "").strip()
@@ -348,7 +338,6 @@ def verify_otp():
             conn.close()
             return jsonify({"success": False, "message": "OTP expired"}), 400
 
-        # Issue a reset_token for password update
         reset_token = secrets.token_urlsafe(24)
         reset_expires = datetime.utcnow() + timedelta(minutes=15)
         cur.execute("INSERT INTO reset_tokens (email, token, expires_at) VALUES (%s, %s, %s)",
@@ -358,13 +347,11 @@ def verify_otp():
 
         return jsonify({"success": True, "reset_token": reset_token})
     except Exception as e:
-        print("/verify-otp error:", e)
+        print(f"Verify OTP error: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
-@app.route("/forgot-password", methods=["POST", "OPTIONS"])
-@cross_origin()
+
+@app.route("/forgot-password", methods=["POST"])
 def forgot_password():
-    if request.method == "OPTIONS":
-        return ("", 204)
     data = request.json or {}
     email = (data.get("email") or "").strip()
     if not email:
@@ -395,11 +382,8 @@ def forgot_password():
     except Exception as e:
         return jsonify({"success": False, "message": f"Failed to send email: {str(e)}"}), 500
 
-@app.route("/reset-password", methods=["POST", "OPTIONS"])
-@cross_origin()
+@app.route("/reset-password", methods=["POST"])
 def reset_password():
-    if request.method == "OPTIONS":
-        return ("", 204)
     data = request.json or {}
     token = data.get("token") or data.get("reset_token")
     new_password = data.get("password")
@@ -421,7 +405,6 @@ def reset_password():
         conn.close()
         return jsonify({"success": False, "message": "Token expired"}), 400
 
-    # Update password with hashing
     hashed_password = hash_password(new_password)
     cur.execute("UPDATE users SET password=%s WHERE email=%s", (hashed_password, email))
     cur.execute("DELETE FROM reset_tokens WHERE token=%s", (token,))
@@ -629,14 +612,11 @@ def add_entry():
     reporting_branch = data.get("reporting_branch", "")
     num_students = data.get("num_students", 0)
 
-    # Validation
     if not school_name or not location:
         return jsonify({"success": False, "message": "School name and location required"}), 400
 
     try:
-        # Ensure num_students is an integer
         num_students = int(num_students)
-
         conn = get_conn()
         cur = conn.cursor()
 
@@ -646,19 +626,15 @@ def add_entry():
         """, (school_name, location, reporting_branch, num_students))
 
         conn.commit()
-        new_id = cur.lastrowid  # should now work
-
+        new_id = cur.lastrowid
         return jsonify({"success": True, "id": new_id, "message": "School added successfully"})
 
     except Exception as e:
-        print("DB Insert Error:", e)  # log error
+        print(f"DB Insert Error: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
-
     finally:
-        conn.close()
-
-
-    return jsonify({"success": True, "id": new_id, "message": "School added successfully"})
+        if 'conn' in locals():
+            conn.close()
 
 @app.route("/admin/delete/<int:entry_id>", methods=["DELETE"])
 def delete_entry(entry_id):
@@ -869,7 +845,7 @@ def delete_workbook(w_id):
 
     return jsonify({"success": True, "id": w_id, "message": "Workbook deleted"})
 
-# ------------------ MAINTENANCE & CLEANUP ------------------
+# ------------------ MAINTENANCE ------------------
 @app.route("/cleanup-tokens", methods=["POST"])
 def cleanup_tokens():
     """Clean up expired reset tokens"""
@@ -882,23 +858,6 @@ def cleanup_tokens():
     conn.close()
     return jsonify({"success": True, "deleted": deleted_count})
 
-# ------------------ HEALTH CHECK ------------------
-@app.route("/health", methods=["GET"])
-def health_check():
-    """Health check endpoint for database connection"""
-    try:
-        conn = get_conn()
-        cur = conn.cursor()
-        cur.execute("SELECT 1")
-        conn.close()
-        return jsonify({"status": "healthy", "database": "connected"})
-    except Exception as e:
-        return jsonify({"status": "unhealthy", "database": "disconnected", "error": str(e)}), 500
-
-# ------------------ MAIN ------------------
+# ------------------ Main Execution ------------------
 if __name__ == "__main__":
-    print("Initializing MySQL database...")
-    with app.app_context():
-        init_db()
-    print("MySQL database initialized successfully!")
-    app.run(debug=True, host="127.0.0.1", port=5001)
+    app.run(debug=False, host="0.0.0.0", port=5000)
